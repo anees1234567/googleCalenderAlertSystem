@@ -1,21 +1,23 @@
-
-
 import { Request, Response } from "express";
-import { google } from "googleapis"; // Import googleapis
+import { google } from "googleapis";
 import { getAuthUrl, getTokens } from "../config/Oauth";
 import User from "../UserModel/UserModel";
 import { savePhoneNumberService } from "../services/userService";
+import { IError } from "@utility/interface"; 
 
 export const redirectToGoogle = (req: Request, res: Response) => {
   const authUrl = getAuthUrl();
   res.redirect(authUrl);
 };
 
+
 export const googleCallback = async (req: Request, res: Response) => {
   try {
     const { code } = req.query;
     if (!code || typeof code !== "string") {
-      return res.status(400).json({ error: "Missing or invalid authorization code" });
+      const error: IError = new Error("Missing or invalid authorization code");
+      error.statusCode = 400;
+      throw error;
     }
 
     const tokens = await getTokens(code);
@@ -26,49 +28,47 @@ export const googleCallback = async (req: Request, res: Response) => {
       redirectUri: process.env.GOOGLE_REDIRECT_URI,
     });
     oauth2Client.setCredentials(tokens);
+
     const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
     const { data } = await oauth2.userinfo.get();
     const email = data.email;
+
     if (!email) {
-      return res.status(400).json({ error: "Unable to retrieve user email" });
+      const error: IError = new Error("Unable to retrieve user email");
+      error.statusCode = 400;
+      throw error;
     }
-    await User.updateOne(
-      { email },
-      { oauthCredentials: tokens },
-      { upsert: true }
-    );
-      res.cookie("accessToken", tokens.access_token, {
+
+    await User.updateOne({ email }, { oauthCredentials: tokens }, { upsert: true });
+
+    res.cookie("accessToken", tokens.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 1000, 
+      maxAge: 60 * 60 * 1000,
     });
+
     req.session.user = { email };
-    res.redirect("http://localhost:3000/dashboard");
-  } catch (error) {
-    console.error("Error in Google callback:", error);
-    res.status(500).json({ error: "Authentication failed" });
+    return res.success({ redirect: "http://localhost:3000/dashboard" }, "Authentication successful", 200);
+  } catch (error: any) {
+    error.statusCode = error.statusCode || 500;
+    throw error;
   }
 };
-
-
 export const ActivatEvent = async (req: Request, res: Response) => {
   try {
     const { phoneNumber } = req.body;
     const email = req.session?.user?.email;
-    if ( !phoneNumber) {
-      return res.status(400).json({ error: "Email and phone number are required" });
+    if (!email || !phoneNumber) {
+      const error: IError = new Error("Email and phone number are required");
+      error.statusCode = 400;
+      throw error;
     }
-     const user = await savePhoneNumberService({ email, phoneNumber });
-    console.log(`Phone number saved and reminders activated for ${email}`);
-    return res.status(200).json({ message: "Phone number saved and reminders activated", user });
+    const user = await savePhoneNumberService({ email, phoneNumber });
+    return res.success(user, "Phone number saved and reminders activated", 200);
   } catch (error: any) {
-    console.error("Error saving phone number:", error.message || error);
-    return res.status(500).json({ error: error.message || "Failed to save phone number" });
+    error.statusCode = error.statusCode || 500;
+    throw error;
   }
 };
-
-
-
-
