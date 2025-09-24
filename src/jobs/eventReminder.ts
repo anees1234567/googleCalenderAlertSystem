@@ -6,7 +6,7 @@ import User from "../UserModel/UserModel";
 let isCronScheduled = false;
 if (!isCronScheduled) {
   console.log("Scheduling single cron job for activated users");
-  cron.schedule("*/5 * * * *", async () => {
+  cron.schedule("*/3 * * * *", async () => {
     console.log("🔄 Checking for upcoming events for activated users...");
     try {
       const activatedUsers = await User.find({ isActivated: true }).select(

@@ -50,7 +50,7 @@ export const googleCallback = async (req: Request, res: Response) => {
     });
 
     req.session.user = { email };
-    return res.success({ redirect: "http://localhost:3000/dashboard" }, "Authentication successful", 200);
+    return res.redirect("http://localhost:3000/dashboard")
   } catch (error: any) {
     error.statusCode = error.statusCode || 500;
     throw error;
