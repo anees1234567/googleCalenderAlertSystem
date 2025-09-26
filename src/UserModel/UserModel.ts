@@ -1,7 +1,7 @@
 
 import mongoose, { Schema, Document } from "mongoose";
 
-interface IUser extends Document {
+export interface IUser extends Document {
   email: string;
   phoneNumber?: string;
   isActivated: boolean;

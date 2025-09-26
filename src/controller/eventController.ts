@@ -4,7 +4,7 @@ import { oauth2Client } from "../config/Oauth";
 import { getTodayEventsService } from "../services/eventService";
 import { twilioClient } from "../config/twilio";
 import User from "../UserModel/UserModel";
-import { IError } from "@utility/interface";
+import { IError } from "../utility/interface";
 
 export const getTodayEvents = async (req: Request, res: Response) => {
   try {

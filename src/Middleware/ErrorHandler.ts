@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { IError } from '@utility/interface'; 
+import { IError } from '../utility/interface'; 
 
 const errorHandler = (err: IError, req: Request, res: Response, next: NextFunction) => {
   const statusCode = err.statusCode || 500;

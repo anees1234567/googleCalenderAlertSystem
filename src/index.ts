@@ -11,18 +11,17 @@ import { getTodayEvents } from "./controller/eventController";
 import connectDB from "./config/Database";
 import "../src/jobs/eventReminder";
 dotenv.config();
-let isCronInitialized = false;
 
-const app = express();
+
+const app = express()
 connectDB();
 const server = http.createServer(app);
-// Middleware
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "secret",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false }, // Set to true in production with HTTPS
+    cookie: { secure: false }, 
   })
 );
 app.use(express.json());
@@ -41,7 +40,6 @@ app.use("/events/today", getTodayEvents);
 app.use("/events/Activate", ActivatEvent);
 app.use(ErrorHandlerMiddleware);
 
-// Start server
 server.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}`);
 });

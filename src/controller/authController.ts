@@ -3,7 +3,7 @@ import { google } from "googleapis";
 import { getAuthUrl, getTokens } from "../config/Oauth";
 import User from "../UserModel/UserModel";
 import { savePhoneNumberService } from "../services/userService";
-import { IError } from "@utility/interface"; 
+import { IError } from "../utility/interface"; 
 
 export const redirectToGoogle = (req: Request, res: Response) => {
   const authUrl = getAuthUrl();
