@@ -6,4 +6,8 @@ Built with **Express**, **TypeScript**, and **MongoDB**.
 # npm install (only first time)
 # npm run dev (during development)
 
-npm run build && npm start (for production)
+open a terminal at the folder queue
+# npm run scheduler
+again open a terminal at the folder queue
+# npm run worker
+
